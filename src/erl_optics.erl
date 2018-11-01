@@ -13,8 +13,10 @@
     lens_update/2,
     lens_free/1,
     quantile_update/2,
+    triple_quantile_update/2,
     quantile_update_timing_now/2,
     quantile_update_timing_now_us/2,
+    triple_quantile_update_timing_now_us/2,
     start/1,
     stop/0
 ]).
@@ -110,19 +112,31 @@ quantile_update(Key, Val) ->
     {ok, Ptr} = get_lens(Key),
     erl_optics_nif:quantile_update(Ptr, Val).
 
+-spec triple_quantile_update(binary(), number()) -> ok | {error, term()}.
+
+triple_quantile_update(Key, Val) ->
+    quantile_update(list_to_binary([Key, <<".q50">>]), Val),
+    quantile_update(list_to_binary([Key, <<".q95">>]), Val),
+    quantile_update(list_to_binary([Key, <<".q99">>]), Val).
+
 -spec quantile_update_timing_now(binary(), erlang:timestamp()) -> ok | {error, term()}.
 
 quantile_update_timing_now(Key, Stamp) ->
-    {ok, Ptr} = get_lens(Key),
-    erl_optics_nif:quantile_update(Ptr, 1.0 * timer:now_diff(os:timestamp(), Stamp) / 1000.0).
+    Delta = timer:now_diff(os:timestamp(), Stamp) / 1000.0,
+    quantile_update(Key, Delta).
 
 
 -spec quantile_update_timing_now_us(binary(), erlang:timestamp()) -> ok | {error, term()}.
 
 quantile_update_timing_now_us(Key, Stamp) ->
-    {ok, Ptr} = get_lens(Key),
-    erl_optics_nif:quantile_update(Ptr, 1.0 * timer:now_diff(os:timestamp() , Stamp)).
+    Delta = timer:now_diff(os:timestamp(), Stamp),
+    quantile_update(Key, Delta).
 
+-spec triple_quantile_update_timing_now_us(binary(), erlang:timestamp()) -> ok | {error, term()}.
+
+triple_quantile_update_timing_now_us(Key, Stamp) ->
+    Delta = timer:now_diff(os:timestamp(), Stamp),
+    triple_quantile_update(Key, Delta).
 
 -spec start() -> ok.
 
