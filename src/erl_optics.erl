@@ -13,7 +13,8 @@
     lens_update/2,
     lens_free/1,
     quantile_update/2,
-
+    quantile_update_timing_now/2,
+    quantile_update_timing_now_us/2,
     start/1,
     stop/0
 ]).
@@ -45,10 +46,8 @@ counter_inc_alloc(Key) ->
 counter_inc_alloc(Key, Amt)->
     case get_lens(Key) of
 	{ok, Ptr} ->
-	    io:fwrite("lens found\n"),
 	    erl_optics_nif:counter_inc(Ptr, Amt);
         {error, key_not_found} ->
-	    io:fwrite("lens not found\n"),	    
 	    {ok, Ptr} = counter_alloc(Key),
             foil:insert(?NS, Key, Ptr),
 	    ok = foil:load(?NS),
@@ -58,7 +57,6 @@ counter_inc_alloc(Key, Amt)->
 	_ ->
 	    {error, undefined}
     end.
-
 
 
 -spec dist_record(binary(), float()) -> ok | {error, term()}.
@@ -111,6 +109,19 @@ quantile_update(Key, Val) when is_integer(Val) ->
 quantile_update(Key, Val) ->
     {ok, Ptr} = get_lens(Key),
     erl_optics_nif:quantile_update(Ptr, Val).
+
+-spec quantile_update_timing_now(binary(), erlang:timestamp()) -> ok | {error, term()}.
+
+quantile_update_timing_now(Key, Stamp) ->
+    {ok, Ptr} = get_lens(Key),
+    erl_optics_nif:quantile_update(Ptr, 1.0 * timer:now_diff(os:timestamp(), Stamp) / 1000.0).
+
+
+-spec quantile_update_timing_now_us(binary(), erlang:timestamp()) -> ok | {error, term()}.
+
+quantile_update_timing_now_us(Key, Stamp) ->
+    {ok, Ptr} = get_lens(Key),
+    erl_optics_nif:quantile_update(Ptr, 1.0 * timer:now_diff(os:timestamp() , Stamp)).
 
 
 -spec start() -> ok.
