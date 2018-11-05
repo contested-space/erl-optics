@@ -17,7 +17,7 @@
     quantile_update_timing_now/2,
     quantile_update_timing_now_us/2,
     triple_quantile_update_timing_now_us/2,
-    start/1,
+    start/2,
     stop/0
 ]).
 
@@ -147,14 +147,14 @@ start() ->
         erl_optics_lens:gauge(<<"bob_the_gauge">>),
         erl_optics_lens:histo(<<"bob_the_histo">>, [10.0, 20.0, 30.0, 40.0])
     ],
-    start(Lenses).
+    start(<<"erl_optics">>, Lenses).
 
--spec start([erl_optics_lens:desc()]) -> ok.
+-spec start(binary(), [erl_optics_lens:desc()]) -> ok.
 
-start(Lenses) ->
+start(prefix, Lenses) ->
     case create_foil() of
         ok ->
-            ok = create_optics(),
+            ok = create_optics(prefix),
             ok = alloc_lenses(Lenses);
         Err -> Err
     end.
@@ -228,7 +228,10 @@ create_foil() ->
     end.
 
 create_optics() ->
-    OpticsStatus = erl_optics_nif:optics_create(),
+  create_optics(<<"erl_optics">>).
+
+create_optics(Name) ->
+    OpticsStatus = erl_optics_nif:optics_create(Name),
     case OpticsStatus of
         {ok, Ptr} ->
             ok = foil:insert(?MODULE, optics, Ptr),
