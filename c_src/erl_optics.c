@@ -307,6 +307,8 @@ static ERL_NIF_TERM eo_optics_free(
 // For testing: DO NOT USE IN PRODUCTION CODE
 //------------------------------------------------------------------------------
 
+
+/*
 static ERL_NIF_TERM eo_counter_read(
     ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {
@@ -449,7 +451,7 @@ static ERL_NIF_TERM eo_quantile_read(
     enif_make_map_put(env, map, atom_count, count, &map);
     return map;
 }
-
+*/
 
 
 static ErlNifFunc nif_funcs[] =
@@ -476,11 +478,11 @@ static ErlNifFunc nif_funcs[] =
 
     // For testing
     // TODO: Split into a separate NIF
-    {"counter_read", 1, eo_counter_read},
-    {"dist_read", 1, eo_dist_read},
-    {"gauge_read", 1, eo_gauge_read},
-    {"histo_read", 1, eo_histo_read},
-    {"quantile_read", 1, eo_quantile_read},
+    //{"counter_read", 1, eo_counter_read},
+    //{"dist_read", 1, eo_dist_read},
+    //{"gauge_read", 1, eo_gauge_read},
+    //{"histo_read", 1, eo_histo_read},
+    //{"quantile_read", 1, eo_quantile_read},
 };
 
 ERL_NIF_INIT(erl_optics_nif, nif_funcs, load, NULL, NULL, NULL)
