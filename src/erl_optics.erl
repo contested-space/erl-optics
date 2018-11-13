@@ -151,10 +151,10 @@ start() ->
 
 -spec start(binary(), [erl_optics_lens:desc()]) -> ok.
 
-start(prefix, Lenses) ->
+start(Prefix, Lenses) ->
     case create_foil() of
         ok ->
-            ok = create_optics(prefix),
+            ok = create_optics(Prefix),
             ok = alloc_lenses(Lenses);
         Err -> Err
     end.
