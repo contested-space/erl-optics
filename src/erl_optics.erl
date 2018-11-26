@@ -112,6 +112,12 @@ quantile_update(Key, Val) ->
     {ok, Ptr} = get_lens(Key),
     erl_optics_nif:quantile_update(Ptr, Val).
 
+-spec multiple_quantile_update(binary(), list(), number()) -> ok | {error, term()}.
+
+multiple_quantile_update(Name, KeyTargetList, Val)->
+    lists:map(fun({Key, _}) -> quantile_update(list_to_binary([Name, Key]), Val) end, KeyTargetList).
+                       
+
 -spec triple_quantile_update(binary(), number()) -> ok | {error, term()}.
 
 triple_quantile_update(Key, Val) ->
