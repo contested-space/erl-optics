@@ -5,6 +5,7 @@
 
 -export([
     counter_alloc/2,
+    counter_alloc_get/2,
     counter_inc/2,
     dist_alloc/2,
     dist_record/2,
@@ -53,6 +54,8 @@ nif_stub_error(Line) ->
     erlang:nif_error({nif_not_loaded,module,?MODULE,line,Line}).
 
 counter_alloc(_Optics, _Name) ->
+    ?nif_stub.
+counter_alloc_get(_Optics, _Name) ->
     ?nif_stub.
 counter_inc(_K, _V) ->
     ?nif_stub.

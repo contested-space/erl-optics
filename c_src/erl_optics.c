@@ -293,6 +293,33 @@ static ERL_NIF_TERM eo_optics_free(
     return atom_ok;
 }
 
+static ERL_NIF_TERM eo_counter_alloc_get(
+    ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
+{
+    struct optics *optics = get_optics(env, argv[0]);
+    if (!optics) return ERROR("get_optics");
+
+    ErlNifBinary bin;
+    if (!enif_inspect_binary(env, argv[1], &bin)) {
+        return enif_make_badarg(env);
+    }
+
+    char *key = alloc_key(bin);
+    if (!key) return ERROR("alloc_key");
+
+    struct optics_lens *lens = optics_counter_alloc_get(optics, key);
+    enif_free(key);
+
+    if (!lens) return make_optics_error(env);
+
+    ERL_NIF_TERM ptr = enif_make_int64(env, (int64_t)lens);
+
+    return enif_make_tuple2(env, atom_ok, ptr);  
+
+  
+} 
+                           
+
 //static ERL_NIF_TERM eo_set_prefix(
 //    ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 //{
@@ -457,6 +484,7 @@ static ERL_NIF_TERM eo_quantile_read(
 static ErlNifFunc nif_funcs[] =
 {
     {"counter_alloc", 2, eo_counter_alloc},
+    {"counter_alloc_get", 2, eo_counter_alloc_get},
     {"counter_inc", 2, eo_counter_inc},
 
     {"dist_alloc", 2, eo_dist_alloc},

@@ -46,19 +46,9 @@ counter_inc_alloc(Key) ->
 -spec counter_inc_alloc(binary(), integer()) -> ok | {error, term()}.
 
 counter_inc_alloc(Key, Amt)->
-    case get_lens(Key) of
-        {ok, Ptr} ->
-            erl_optics_nif:counter_inc(Ptr, Amt);
-        {error, key_not_found} ->
-            {ok, Ptr} = counter_alloc(Key),
-            foil:insert(?NS, Key, Ptr),
-            ok = foil:load(?NS),
-            erl_optics_nif:counter_inc(Ptr, Amt);
-        {error, Msg} ->
-            {error, Msg};
-        _ ->
-            {error, undefined}
-    end.
+    {ok, OpticsPtr} = get_optics(),
+    {ok, Ptr} = erl_optics_nif:counter_alloc_get(OpticsPtr, Key),
+    erl_optics_nif:counter_inc(Ptr, Amt).
 
 
 -spec dist_record(binary(), float()) -> ok | {error, term()}.
