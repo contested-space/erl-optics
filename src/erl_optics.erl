@@ -47,17 +47,17 @@ counter_inc_alloc(Key) ->
 
 counter_inc_alloc(Key, Amt)->
     case get_lens(Key) of
-	{ok, Ptr} ->
-	    erl_optics_nif:counter_inc(Ptr, Amt);
+        {ok, Ptr} ->
+            erl_optics_nif:counter_inc(Ptr, Amt);
         {error, key_not_found} ->
-	    {ok, Ptr} = counter_alloc(Key),
+            {ok, Ptr} = counter_alloc(Key),
             foil:insert(?NS, Key, Ptr),
-	    ok = foil:load(?NS),
-	    erl_optics_nif:counter_inc(Ptr, Amt);
-	{error, Msg} ->
-	    {error, Msg};
-	_ ->
-	    {error, undefined}
+            ok = foil:load(?NS),
+            erl_optics_nif:counter_inc(Ptr, Amt);
+        {error, Msg} ->
+            {error, Msg};
+        _ ->
+            {error, undefined}
     end.
 
 
