@@ -260,7 +260,18 @@ static ERL_NIF_TERM eo_lens_free(
     struct optics_lens *lens = get_lens(env, argv[0]);
     if (!lens) return ERROR("get_lens");
 
-    if (!optics_lens_free(lens)) return make_optics_error(env);
+    if(!optics_lens_free(lens)) return make_optics_error(env);
+
+    return atom_ok;
+}
+
+static ERL_NIF_TERM eo_lens_close(
+    ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
+{
+    struct optics_lens *lens = get_lens(env, argv[0]);
+    if(!lens) return ERROR("get_lens");
+
+    optics_lens_close(lens);
 
     return atom_ok;
 }
@@ -497,6 +508,7 @@ static ErlNifFunc nif_funcs[] =
     {"histo_inc", 2, eo_histo_inc},
 
     {"lens_free", 1, eo_lens_free},
+    {"lens_close", 1, eo_lens_close},
     {"optics_create", 1, eo_optics_create},
     {"optics_free", 1, eo_optics_free},
 

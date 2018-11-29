@@ -8,6 +8,8 @@
     counter_inc_alloc/1,
     counter_inc_alloc/2,
     dist_record/2,
+    dist_record_timing_now_us/2,
+    dist_record_timing_now/2,
     gauge_set/2,
     histo_inc/2,
     lens_update/2,
@@ -48,7 +50,8 @@ counter_inc_alloc(Key) ->
 counter_inc_alloc(Key, Amt)->
     {ok, OpticsPtr} = get_optics(),
     {ok, Ptr} = erl_optics_nif:counter_alloc_get(OpticsPtr, Key),
-    erl_optics_nif:counter_inc(Ptr, Amt).
+    erl_optics_nif:counter_inc(Ptr, Amt),
+    erl_optics_nif:lens_close(Ptr). % ?
 
 
 -spec dist_record(binary(), float()) -> ok | {error, term()}.
@@ -57,6 +60,17 @@ dist_record(Key, Val) ->
     {ok, Ptr} = get_lens(Key),
     erl_optics_nif:dist_record(Ptr, Val).
 
+-spec dist_record_timing_now_us(binary(), float()) -> ok | {error, term()}.
+
+dist_record_timing_now_us(Key, Stamp) ->
+    Delta = timer:now_diff(os:timestamp(), Stamp),
+    dist_record(Key, Delta).
+
+-spec dist_record_timing_now(binary(), float()) -> ok | {error, term()}.
+
+dist_record_timing_now(Key, Stamp) ->
+    Delta = timer:now_diff(os:timestam(), Stamp) / 1000.0,
+    dist_record(Key, Delta).
 
 -spec gauge_set(binary(), number()) -> ok | {error, term()}.
 

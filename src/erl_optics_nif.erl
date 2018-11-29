@@ -14,6 +14,7 @@
     histo_alloc/3,
     histo_inc/2,
     lens_free/1,
+    lens_close/1,
     optics_create/1,
     optics_free/1,
     quantile_alloc/5,
@@ -80,6 +81,8 @@ histo_inc(_K, _V) ->
 histo_read(_Lens) ->
     ?nif_stub.
 lens_free(_K) ->
+    ?nif_stub.
+lens_close(_K) ->
     ?nif_stub.
 optics_create(_Name) ->
     ?nif_stub.
