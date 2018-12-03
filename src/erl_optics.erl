@@ -8,17 +8,17 @@
     counter_inc_alloc/1,
     counter_inc_alloc/2,
     dist_record/2,
+    dist_record_alloc/2,
     dist_record_timing_now_us/2,
     dist_record_timing_now/2,
     gauge_set/2,
+    gauge_set_alloc/2,
     histo_inc/2,
     lens_update/2,
     lens_free/1,
     quantile_update/2,
-    triple_quantile_update/2,
     quantile_update_timing_now/2,
     quantile_update_timing_now_us/2,
-    triple_quantile_update_timing_now_us/2,
     start/2,
     stop/0
 ]).
@@ -60,6 +60,13 @@ dist_record(Key, Val) ->
     {ok, Ptr} = get_lens(Key),
     erl_optics_nif:dist_record(Ptr, Val).
 
+-spec dist_record_alloc(binary(), float()) -> ok | {error, term()}.
+
+dist_record_alloc(Key, Val) ->
+    {ok, OpticsPtr} = get_optics(),
+    {ok, Ptr} = erl_optics_nif:dist_alloc_get(OpticsPtr, Key),
+    erl_optics_nif:dist_record(Ptr, Val).
+
 -spec dist_record_timing_now_us(binary(), float()) -> ok | {error, term()}.
 
 dist_record_timing_now_us(Key, Stamp) ->
@@ -79,6 +86,16 @@ gauge_set(Key, Val) when is_integer(Val) ->
 
 gauge_set(Key, Val) ->
     {ok, Ptr} = get_lens(Key),
+    erl_optics_nif:gauge_set(Ptr, Val).
+
+-spec gauge_set_alloc(binary(), number()) -> ok | {error, term()}.
+
+gauge_set_alloc(Key, Val) when is_integer(Val) ->
+    gauge_set_alloc(Key, float(Val));
+
+gauge_set_alloc(Key, Val) ->
+    {ok, OpticsPtr} = get_optics(),
+    {ok, Ptr} = erl_optics_nif:gauge_alloc_get(OpticsPtr, Key),
     erl_optics_nif:gauge_set(Ptr, Val).
 
 
@@ -116,18 +133,6 @@ quantile_update(Key, Val) ->
     {ok, Ptr} = get_lens(Key),
     erl_optics_nif:quantile_update(Ptr, Val).
 
--spec multiple_quantile_update(binary(), list(), number()) -> ok | {error, term()}.
-
-multiple_quantile_update(Name, KeyTargetList, Val)->
-    lists:map(fun({Key, _}) -> quantile_update(list_to_binary([Name, Key]), Val) end, KeyTargetList).
-                       
-
--spec triple_quantile_update(binary(), number()) -> ok | {error, term()}.
-
-triple_quantile_update(Key, Val) ->
-    quantile_update(list_to_binary([Key, <<".q50">>]), Val),
-    quantile_update(list_to_binary([Key, <<".q95">>]), Val),
-    quantile_update(list_to_binary([Key, <<".q99">>]), Val).
 
 -spec quantile_update_timing_now(binary(), erlang:timestamp()) -> ok | {error, term()}.
 
@@ -141,12 +146,6 @@ quantile_update_timing_now(Key, Stamp) ->
 quantile_update_timing_now_us(Key, Stamp) ->
     Delta = timer:now_diff(os:timestamp(), Stamp),
     quantile_update(Key, Delta).
-
--spec triple_quantile_update_timing_now_us(binary(), erlang:timestamp()) -> ok | {error, term()}.
-
-triple_quantile_update_timing_now_us(Key, Stamp) ->
-    Delta = timer:now_diff(os:timestamp(), Stamp),
-    triple_quantile_update(Key, Delta).
 
 -spec start() -> ok.
 

@@ -8,8 +8,10 @@
     counter_alloc_get/2,
     counter_inc/2,
     dist_alloc/2,
+    dist_alloc_get/2,
     dist_record/2,
     gauge_alloc/2,
+    gauge_alloc_get/2,
     gauge_set/2,
     histo_alloc/3,
     histo_inc/2,
@@ -64,11 +66,15 @@ counter_read(_Lens) ->
     ?nif_stub.
 dist_alloc(_Optics, _Name) ->
     ?nif_stub.
+dist_alloc_get(_Optics, _Name) ->
+    ?nif_stub.
 dist_read(_Lens) ->
     ?nif_stub.
 dist_record(_K, _V) ->
     ?nif_stub.
 gauge_alloc(_Optics, _Name) ->
+    ?nif_stub.
+gauge_alloc_get(_Optics, _Name) ->
     ?nif_stub.
 gauge_read(_Lens) ->
     ?nif_stub.
