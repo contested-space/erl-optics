@@ -51,7 +51,7 @@ counter_inc_alloc(Key, Amt)->
     {ok, OpticsPtr} = get_optics(),
     {ok, Ptr} = erl_optics_nif:counter_alloc_get(OpticsPtr, Key),
     erl_optics_nif:counter_inc(Ptr, Amt),
-    erl_optics_nif:lens_close(Ptr). % ?
+    erl_optics_nif:lens_close(Ptr).
 
 
 -spec dist_record(binary(), float()) -> ok | {error, term()}.
@@ -65,7 +65,8 @@ dist_record(Key, Val) ->
 dist_record_alloc(Key, Val) ->
     {ok, OpticsPtr} = get_optics(),
     {ok, Ptr} = erl_optics_nif:dist_alloc_get(OpticsPtr, Key),
-    erl_optics_nif:dist_record(Ptr, Val).
+    erl_optics_nif:dist_record(Ptr, Val),
+    erl_optics_nif:lens_close(Ptr).
 
 -spec dist_record_timing_now_us(binary(), float()) -> ok | {error, term()}.
 
@@ -96,7 +97,8 @@ gauge_set_alloc(Key, Val) when is_integer(Val) ->
 gauge_set_alloc(Key, Val) ->
     {ok, OpticsPtr} = get_optics(),
     {ok, Ptr} = erl_optics_nif:gauge_alloc_get(OpticsPtr, Key),
-    erl_optics_nif:gauge_set(Ptr, Val).
+    erl_optics_nif:gauge_set(Ptr, Val),
+    erl_optics_nif:lens_close(Ptr).
 
 
 -spec histo_inc(binary(), number()) -> ok | {error, term()}.
