@@ -47,18 +47,51 @@ add_lens(Lens, Model = #model{lenses = Lenses, lens_state = State}) ->
     Model#model{lenses = Lenses2, lens_state = State2}.
 
 
+%% determine_histo_key(Event, Keys) ->
+%%     io:format("keys: "),
+%%     io:format("~p~n", [Keys]),
+%%     Keys2 = lists:dropwhile(fun(Key) ->
+%%                                     {Min, Max} = Key,
+%%                                     io:format("Min|Event|Max: "),
+%%                                     io:format("~p~n", [[Min, "|", Event, "|", Max, "|", Max < Event]]),
+%%                                     Max < Event end, Keys),
+%%     KeysLen = length(Keys),
+%%     Keys2Len = length(Keys2),
+%%     case Keys2Len of
+%%         0 ->
+%%             above;
+%%         KeysLen ->
+%%             below;
+%%         _N ->
+%%             lists:nth(KeysLen - Keys2Len, Keys)
+
+%%     end.
+
 determine_histo_key(Event, Keys) ->
-    Keys2 = lists:dropwhile(fun(Key) -> Key < Event end, Keys),
-    KeysLen = length(Keys),
-    Keys2Len = length(Keys2),
-    case Keys2Len of
-        0 ->
-            above;
-        KeysLen ->
-            below;
-        _N ->
-            lists:nth(KeysLen - Keys2Len, Keys)
+    Tuple = lists:search(fun(Key) ->
+        {A, B} = Key,
+        Bigger = Event >= A,
+        Smaller = Event < B,
+        Bigger and Smaller
+                         end, Keys),
+    case Tuple of
+        {value, Key} ->
+            Key;
+        _ -> above_or_below(Event, Keys)
     end.
+
+above_or_below(Event, Keys) ->
+    Above = lists:dropwhile(fun(Key) ->
+                                    {Min, Max} = Key,
+                                    Event < Max end, Keys),
+    case Above of
+        [] ->
+            below;
+        _ ->
+            above
+    end.
+
+
 
 
 -spec do(op(), model()) -> model().
@@ -97,17 +130,37 @@ percentile(Lst, N) ->
 
 populate_histo(Events, Buckets) ->
     Map1 = #{above => 0, below => 0},
-    Keys = lists:sort(Buckets),
+    %io:format("Buckets: "),
+    %io:format("~p~n", [Buckets]),
+    Bucket_tuples = buckets_to_tuples(Buckets),
+    Keys = lists:sort(Bucket_tuples),
     Map2 = lists:foldl(fun(Bucket, Acc) -> Acc#{Bucket => 0} end, Map1, Keys),
     Map3 = lists:foldl(fun(Event, Acc) ->
         Key = determine_histo_key(Event, Keys),
+        %io:format("Key: "),
+        %io:format("~p~n", [Key]),
         #{Key := Val} = Acc,
         Acc#{Key => Val + 1}
     end, Map2, Events),
-    LastBucket = lists:last(Buckets),
-    {V, Map4 = #{above := Above}} = maps:take(LastBucket, Map3),
-    Map4#{above => Above + V}.
+    %LastBucket = lists:last(Buckets),
+    %{V, Map4 = #{above := Above}} = maps:take(LastBucket, Map3),
+    %Map4#{above => Above + V}.
+    Map3.
 
+
+buckets_to_tuples(Buckets)->
+    Sorted_buckets = lists:sort(Buckets),
+    buckets_to_tuples(Sorted_buckets, []).
+
+
+buckets_to_tuples([], Acc) ->
+    Acc;
+buckets_to_tuples([_|[]], Acc) ->
+    Acc;
+buckets_to_tuples(Buckets, Acc) ->
+    [A | Rest] = Buckets,
+    [B | _] = Rest,
+    buckets_to_tuples(Rest, [{A, B}| Acc]).
 
 read_lens() ->
     fun(Lens, Acc) -> read_lens(Lens, Acc) end.

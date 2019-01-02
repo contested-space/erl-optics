@@ -20,7 +20,7 @@
     update/2
 ]).
 
--type histo_buckets() :: list(float()).
+-type histo_buckets() :: list(tuple()).
 
 -record(quantile_args, {
     adjustment_value = undefined :: float(),
@@ -83,11 +83,33 @@ gauge(Name) when is_binary(Name) ->
     #lens{name = Name, type = gauge, f = Fun}.
 
 
--spec histo(lens_name(), list(float())) -> lens().
+-spec histo(lens_name(), list(integer())) -> lens().
 
 histo(Name, Buckets) when is_binary(Name) ->
     Fun = fun(Val) -> erl_optics:histo_inc(Name, Val) end,
     #lens{name = Name, type = histo, f = Fun, ext = Buckets}.
+
+
+%% histo(Name, Buckets) when is_binary(Name) ->
+%%     Fun = fun(Val) -> erl_optics:histo_inc(Name, Val) end,
+%%     Bucket_tuples = buckets_to_tuples(Buckets),
+%%     #lens{name = Name, type = histo, f = Fun, ext = Bucket_tuples}.
+
+
+%% buckets_to_tuples(Buckets)->
+%%     Sorted_buckets = lists:sort(Buckets),
+%%     buckets_to_tuples(Sorted_buckets, []).
+
+%% buckets_to_tuples([], Acc) ->
+%%     Acc;
+%% buckets_to_tuples([_|[]], Acc) ->
+%%     Acc;
+%% buckets_to_tuples(Buckets, Acc) ->
+%%     [A | Rest] = Buckets,
+%%     [B | _] = Rest,
+%%     buckets_to_tuples(Rest, [{A, B}| Acc]).
+
+
 
 
 -spec name(lens()) -> binary().
