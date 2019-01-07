@@ -40,7 +40,7 @@ read_lenses(Lenses) ->
     {ok, PollMap} = erl_optics:poll(),
     lists:foldl(fun (Lens, Acc) ->
         Name = erl_optics_lens:name(Lens),
-        Val = maps:get(list_to_binary([<<"test">>, $., Name]), PollMap),
+        {_Type, Val} = maps:get({<<"test">>, Name}, PollMap),
         case erl_optics_lens:type(Lens) of
             counter ->
                 Acc#{Name => Val};
