@@ -83,7 +83,7 @@ gauge(Name) when is_binary(Name) ->
     #lens{name = Name, type = gauge, f = Fun}.
 
 
--spec histo(lens_name(), list(float())) -> lens().
+-spec histo(lens_name(), list(integer())) -> lens().
 
 histo(Name, Buckets) when is_binary(Name) ->
     Fun = fun(Val) -> erl_optics:histo_inc(Name, Val) end,

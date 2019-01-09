@@ -17,4 +17,6 @@ _build
 .idea
 *.iml
 *~
+*.json
+*.yml
 rebar3.crashdump
