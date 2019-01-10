@@ -59,7 +59,7 @@ init([Port, Mode]) ->
             {ok, Hostname} = inet:gethostname(),
             {ok, Address} = inet:getaddr(Hostname, inet),
             {ok, Sock} = gen_tcp:connect(Address, Port, []),
-            timer:send_interval(Interval, carbon_poll),
+            %timer:send_interval(Interval, carbon_poll),
             {ok, #state{port = Port, lsock = Sock}, 0};
         request ->
             {ok, LSock} = gen_tcp:listen(Port, [{active, true}]),
@@ -223,6 +223,6 @@ test_update() ->
     erl_optics:counter_inc(<<"bob_the_counter">>),
     erl_optics:dist_record_timing_now_us(<<"bob_the_dist">>, os:timestamp()),
     erl_optics:gauge_set(<<"bob_the_gauge">>, random:uniform()),
-    erl_optics:quantile_update_timing_now_us(<<"bob_the_quantile">>, os:timestamp()),
+    erl_optics:quantile_update_timing_now_us(<<"bob_the_quantile">>, os:timestamp() ),
     erl_optics:histo_inc(<<"bob_the_histo">>, random:uniform() * 40.0),
     ok.

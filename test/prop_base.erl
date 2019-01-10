@@ -17,7 +17,7 @@ prop_test() ->
 check({Lenses, Seq}) ->
     ErlModel = erl_optics_test_model:seq(Lenses, Seq),
     CModel = erl_optics_test_utils:seq(Lenses, Seq),
-    %io:format("~p~n", [#{erl => ErlModel, c => CModel, seq => Seq, lenses => Lenses}]),
+    io:format("~p~n", [#{erl => ErlModel, c => CModel, seq => Seq, lenses => Lenses}]),
     ErlModel =:= CModel.
 
 
@@ -53,7 +53,7 @@ event(Lenses) ->
     ]).
 
 
-histo_buckets(Len) -> vector(Len, non_neg_float()).
+histo_buckets(Len) -> vector(Len, non_neg_integer()).
 
 
 lens() ->
@@ -117,5 +117,3 @@ seq() ->
         UniqueLenses = maps:values(Map),
         {UniqueLenses, non_empty(list(event(maps:values(Map))))}
     end).
-
-
