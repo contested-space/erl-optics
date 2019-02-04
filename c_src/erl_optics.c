@@ -469,7 +469,8 @@ static void backend_eo (void *ctx, enum optics_poll_type type, const struct opti
     enif_make_map_put(m->env, map, atom_below, below, &map);
     enif_make_map_put(m->env, map, atom_above, above, &map);
 
-    for(size_t i = 0; i < histo.buckets_len - 1; ++i) {
+    size_t i;
+    for(i = 0; i < histo.buckets_len - 1; ++i) {
       ERL_NIF_TERM k0 = enif_make_uint64(m->env, histo.buckets[i]);
       ERL_NIF_TERM k1 = enif_make_uint64(m->env, histo.buckets[i + 1]);
       ERL_NIF_TERM k = enif_make_tuple2(m->env, k0, k1);
