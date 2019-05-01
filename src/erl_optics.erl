@@ -362,4 +362,4 @@ make_lenses_list() ->
         _ ->
             logger:error("get_optics_lenses output error:~n~p", [Errors])
     end,
-    lists:usort(Lenses).
+    lists:usort(lists:flatten(Lenses)).
