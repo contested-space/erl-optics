@@ -177,8 +177,13 @@ start(Prefix, Lenses) ->
 -spec start_optics(binary(), list()) -> {ok, term()} | {error, term()}.
 
 start_optics(Prefix, Lenses) ->
-    %todo: check lenses validity (return failed lenses?)
-    ok = start(Prefix, Lenses),
+    case ?SELF_DIAGNOSIS of
+        true ->
+            L = lists:flatten(Lenses, self_diagnosis_lenses());
+        false ->
+            L = Lenses
+    end,
+    ok = start(Prefix, L),
     Poller = #{
         id => erl_optics_server,
         start => {erl_optics_server, start_link, []},
@@ -365,3 +370,13 @@ check_ets(Key) ->
         1 -> false;
         _ -> true
     end.
+
+self_diagnosis_lenses() -> [
+    erl_optics_lens:gauge(<<"erl_optics.keys_in_foil">>),
+    erl_optics_lens:gauge(<<"erl_optics.keys_in_ets">>),
+    erl_optics_lens:dist(<<"erl_optics.foil_compile_time">>),
+    erl_optics_lens:counter(<<"erl_optics.errors">>),
+    erl_optics_lens:dist(<<"erl_optics.throughput">>),
+    erl_optics_lens:dist(<<"erl_optics.latency">>),
+    erl_optics_lens:dist(<<"erl_optics.foil_server_run_queue">>),
+    erl_optics_lens:counter(<<"erl_optics.total_invocations">>)].
